@@ -1,4 +1,4 @@
-# Version: 1.0.1
+# Version: 2.0.0
 # Built with GitHub Actions
 import os
 import re
@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from flask_cors import CORS
 from pydub import AudioSegment
 import tempfile
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -146,7 +147,22 @@ def index():
     """
     Renders the main HTML page for the client-side audio player.
     """
-    return render_template('index.html') 
+    return render_template(
+        'index.html',
+        version='2.0 - Automated Deployment',
+        deployed_via='GitHub Actions + AWS SSM',
+        server_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
+
+
+@app.route('/health')
+def health():
+    return {
+        'status': 'healthy',
+        'version': '2.0',
+        'deployment_method': 'automated',
+        'timestamp': datetime.now().isoformat()
+    }
 
 @app.route('/select_directory', methods=['POST'])
 def select_directory():
@@ -407,7 +423,7 @@ def save_label():
             'start_time': round(data['start_time'], 3),
             'end_time': round(data['end_time'], 3),
             'duration': round(data['end_time'] - data['start_time'], 3),
-            'labeled_at': __import__('datetime').datetime.now().isoformat()
+            'labeled_at': datetime.now().isoformat()
         }
         
         # Save to CSV file
